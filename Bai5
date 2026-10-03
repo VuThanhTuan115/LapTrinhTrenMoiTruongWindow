@@ -1,0 +1,284 @@
+using System;
+using System.Drawing;
+using System.Drawing.Text;
+using System.IO;
+using System.Windows.Forms;
+
+namespace Soạn_Thảo_Văn_Bản
+{
+    public partial class frmSoanThao : Form
+    {
+        string fileName = "";
+
+        public frmSoanThao()
+        {
+            InitializeComponent();
+
+            // Sự kiện Font và Size
+            cmbFonts.SelectedIndexChanged += cmbFonts_SelectedIndexChanged;
+            cmbSize.SelectedIndexChanged += cmbSize_SelectedIndexChanged;
+        }
+
+        private void frmSoanThao_Load(object sender, EventArgs e)
+        {
+            // Thêm Font
+            foreach (FontFamily font in new InstalledFontCollection().Families)
+            {
+                cmbFonts.Items.Add(font.Name);
+            }
+
+            // Thêm Size
+            int[] size = { 8, 9, 10, 11, 12, 14, 16, 18, 20, 22, 24, 26, 28, 36, 48, 72 };
+
+            foreach (int s in size)
+            {
+                cmbSize.Items.Add(s);
+            }
+
+            // Mặc định
+            cmbFonts.Text = "Tahoma";
+            cmbSize.Text = "14";
+
+            rtbVanBan.Font = new Font("Tahoma", 14);
+
+            // Cho phép nhập
+            rtbVanBan.ReadOnly = false;
+            rtbVanBan.Enabled = true;
+
+            rtbVanBan.Focus();
+        }
+        private void rtbVanBan_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        // TẠO VĂN BẢN MỚI
+        private void tslTaoVanBan_Click(object sender, EventArgs e)
+        {
+            // Xóa văn bản cũ
+            rtbVanBan.Clear();
+
+            // Xóa tên file cũ
+            fileName = "";
+
+            // Đặt lại Font và Size
+            cmbFonts.Text = "Tahoma";
+            cmbSize.Text = "14";
+
+            // Font mặc định cho văn bản mới
+            rtbVanBan.Font = new Font("Tahoma", 14);
+
+            // Đảm bảo có thể nhập
+            rtbVanBan.ReadOnly = false;
+            rtbVanBan.Enabled = true;
+
+            // Đưa con trỏ vào vùng nhập
+            rtbVanBan.Focus();
+
+            // Đặt con trỏ ở đầu
+            rtbVanBan.SelectionStart = 0;
+        }
+
+        // LƯU TẬP TIN
+        private void tslLuu_Click(object sender, EventArgs e)
+        {
+            SaveFileDialog save = new SaveFileDialog();
+
+            save.Filter = "Rich Text Format (*.rtf)|*.rtf";
+
+            if (save.ShowDialog() == DialogResult.OK)
+            {
+                fileName = save.FileName;
+
+                rtbVanBan.SaveFile(
+                    fileName,
+                    RichTextBoxStreamType.RichText
+                );
+
+                MessageBox.Show("Lưu thành công!");
+            }
+        }
+
+        // MỞ TẬP TIN
+        private void tslMoTapTin_Click(object sender, EventArgs e)
+        {
+            OpenFileDialog openFileDialog = new OpenFileDialog();
+
+            openFileDialog.Filter =
+                "Tập tin văn bản (*.txt;*.rtf)|*.txt;*.rtf";
+
+            if (openFileDialog.ShowDialog() == DialogResult.OK)
+            {
+                fileName = openFileDialog.FileName;
+
+                string extension =
+                    Path.GetExtension(fileName).ToLower();
+
+                if (extension == ".txt")
+                {
+                    rtbVanBan.LoadFile(
+                        fileName,
+                        RichTextBoxStreamType.PlainText
+                    );
+                }
+                else if (extension == ".rtf")
+                {
+                    rtbVanBan.LoadFile(
+                        fileName,
+                        RichTextBoxStreamType.RichText
+                    );
+                }
+            }
+        }
+        private void btnMoTapTin_Click(object sender, EventArgs e)
+        {
+            tslMoTapTin_Click(sender, e);
+        }
+
+        // THOÁT
+        private void tslThoat_Click(object sender, EventArgs e)
+        {
+            Application.Exit();
+        }
+
+        // HỆ THỐNG
+        private void tslHeThong_Click(object sender, EventArgs e)
+        {
+        }
+
+        // IN ĐẬM - B
+        private void tslB_Click(object sender, EventArgs e)
+        {
+            if (rtbVanBan.SelectionFont != null)
+            {
+                Font f = rtbVanBan.SelectionFont;
+
+                FontStyle style = f.Style;
+
+                if (f.Bold)
+                    style &= ~FontStyle.Bold;
+                else
+                    style |= FontStyle.Bold;
+
+                rtbVanBan.SelectionFont =
+                    new Font(f.FontFamily, f.Size, style);
+            }
+        }
+
+        // IN NGHIÊNG - I
+        private void tslI_Click(object sender, EventArgs e)
+        {
+            if (rtbVanBan.SelectionFont != null)
+            {
+                Font f = rtbVanBan.SelectionFont;
+
+                FontStyle style = f.Style;
+
+                if (f.Italic)
+                    style &= ~FontStyle.Italic;
+                else
+                    style |= FontStyle.Italic;
+
+                rtbVanBan.SelectionFont =
+                    new Font(f.FontFamily, f.Size, style);
+            }
+        }
+        // GẠCH CHÂN - U
+        private void tslU_Click(object sender, EventArgs e)
+        {
+            if (rtbVanBan.SelectionFont != null)
+            {
+                Font f = rtbVanBan.SelectionFont;
+
+                FontStyle style = f.Style;
+
+                if (f.Underline)
+                    style &= ~FontStyle.Underline;
+                else
+                    style |= FontStyle.Underline;
+
+                rtbVanBan.SelectionFont =
+                    new Font(f.FontFamily, f.Size, style);
+            }
+        }
+ 
+        private void cmbSize_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (cmbSize.SelectedItem != null)
+            {
+                float size =
+                    Convert.ToSingle(cmbSize.SelectedItem);
+
+                if (rtbVanBan.SelectionFont != null)
+                {
+                    Font f = rtbVanBan.SelectionFont;
+
+                    rtbVanBan.SelectionFont =
+                        new Font(
+                            f.FontFamily,
+                            size,
+                            f.Style
+                        );
+                }
+                else
+                {
+                    rtbVanBan.Font =
+                        new Font("Tahoma", size);
+                }
+            }
+        }
+
+        private void cmbFonts_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (cmbFonts.SelectedItem != null)
+            {
+                string tenFont =
+                    cmbFonts.SelectedItem.ToString();
+
+                if (rtbVanBan.SelectionFont != null)
+                {
+                    Font f = rtbVanBan.SelectionFont;
+
+                    rtbVanBan.SelectionFont =
+                        new Font(
+                            tenFont,
+                            f.Size,
+                            f.Style
+                        );
+                }
+                else
+                {
+                    rtbVanBan.Font =
+                        new Font(tenFont, 14);
+                }
+            }
+        }
+
+        private void tslFont_Click_1(object sender, EventArgs e)
+        {
+            FontDialog fontDlg = new FontDialog();
+
+            fontDlg.ShowColor = true;
+            fontDlg.ShowEffects = true;
+
+            if (rtbVanBan.SelectionFont != null)
+            {
+                fontDlg.Font = rtbVanBan.SelectionFont;
+                fontDlg.Color = rtbVanBan.SelectionColor;
+            }
+
+            if (fontDlg.ShowDialog() == DialogResult.OK)
+            {
+                rtbVanBan.SelectionFont = fontDlg.Font;
+
+                rtbVanBan.SelectionColor = fontDlg.Color;
+
+                cmbFonts.Text =
+                    fontDlg.Font.FontFamily.Name;
+
+                cmbSize.Text =
+                    fontDlg.Font.Size.ToString();
+            }
+        }
+    }
+}
